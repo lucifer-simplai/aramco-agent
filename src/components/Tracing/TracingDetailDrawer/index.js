@@ -108,50 +108,51 @@ const TracingDetailDrawer = ({
   };
 
   const getTreeNode = (treeDetails) => {
-    const newTreeDetails = treeDetails?.map((treeDetail) => {
-      let imageURL;
-      if (treeDetail?.entity_type === "TOOL_STEP") {
-        const stepConfig =
-          steps?.find((step) => {
-            return step?.type == treeDetail?.name;
-          }) ||
-          allNodes?.find((step) => {
-            return step?.type == treeDetail?.name;
-          }) ||
-          undefined;
-        imageURL = stepConfig?.image_url;
-      }
-      const newTreeDetail = {
-        title: (
-          <>
-            {/* Show error icon when there is some error */}
-            {/* {treeDetail?.data?.error_response ? (
+    const newTreeDetails =
+      treeDetails?.map?.((treeDetail) => {
+        let imageURL;
+        if (treeDetail?.entity_type === "TOOL_STEP") {
+          const stepConfig =
+            steps?.find((step) => {
+              return step?.type == treeDetail?.name;
+            }) ||
+            allNodes?.find((step) => {
+              return step?.type == treeDetail?.name;
+            }) ||
+            undefined;
+          imageURL = stepConfig?.image_url;
+        }
+        const newTreeDetail = {
+          title: (
+            <>
+              {/* Show error icon when there is some error */}
+              {/* {treeDetail?.data?.error_response ? (
               <StopTwoTone twoToneColor="#eb2f2f" style={{ fontSize: 18 }} />
             ) : ( */}
-            <img
-              src={
-                imageURL
-                  ? imageURL
-                  : `${CHATBOT_BASE_URL}/${treeDetail?.entity_type?.toUpperCase()}.svg`
-              }
-              alt="google"
-              width={24}
-              height={24}
-            />
-            {/* )} */}
-            <Text style={{ padding: "6px" }}>{`${treeDetail?.name} - ${(
-              treeDetail?.data?.response_time / 1000
-            )?.toFixed?.(2)}s`}</Text>
-          </>
-        ),
-        key: treeDetail?.id,
-      };
-      if (treeDetail?.children) {
-        newTreeDetail.children = getTreeNode(treeDetail.children);
-      }
+              <img
+                src={
+                  imageURL
+                    ? imageURL
+                    : `${CHATBOT_BASE_URL}/${treeDetail?.entity_type?.toUpperCase()}.svg`
+                }
+                alt="google"
+                width={24}
+                height={24}
+              />
+              {/* )} */}
+              <Text style={{ padding: "6px" }}>{`${treeDetail?.name} - ${(
+                treeDetail?.data?.response_time / 1000
+              )?.toFixed?.(2)}s`}</Text>
+            </>
+          ),
+          key: treeDetail?.id,
+        };
+        if (treeDetail?.children) {
+          newTreeDetail.children = getTreeNode(treeDetail.children);
+        }
 
-      return newTreeDetail;
-    });
+        return newTreeDetail;
+      }) || [];
 
     return [...newTreeDetails];
   };
@@ -224,10 +225,11 @@ const TracingDetailDrawer = ({
   };
 
   const getWaterfallData = (treeDetails) => {
-    const newTreeDetails = treeDetails?.map((treeDetail) => {
-      const newTreeDetail = formatTraceData(treeDetail);
-      return newTreeDetail;
-    });
+    const newTreeDetails =
+      treeDetails?.map?.((treeDetail) => {
+        const newTreeDetail = formatTraceData(treeDetail);
+        return newTreeDetail;
+      }) || [];
 
     return [...newTreeDetails];
   };

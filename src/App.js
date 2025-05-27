@@ -9,8 +9,8 @@ const queryClient = new QueryClient();
 const AgentProps = {
   elementId: "my-tool-container",
   TENANT_ID: 11,
-  TOKEN: "48013088-83f9-43ad-8b80-2fa2ea77d65f",
-  APP_ID: "agent-676148cc6e71ef9e44b21bd0",
+  TOKEN: "71978a93-4246-41e1-a218-fb7ea850b670",
+  APP_ID: "agent-682eaf4d414acecb31b2b68d",
   PROJECT_ID: 11,
   chatbot: {
     placement: "topLeft",

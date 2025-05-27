@@ -123,6 +123,15 @@ export const checkValidStringifiedJSON = (value) => {
   }
 };
 
+export const isValidJSONValue = (value) => {
+  try {
+    JSON.stringify(value);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
 export const clickDefaultBehaviourDiscardHandler = (e) => {
   e?.stopPropagation();
   e?.preventDefault();
@@ -251,4 +260,10 @@ export const getTimeWithUnitFromMS = (ms) => {
 
     return `${time.toFixed(2)} ${unit}`;
   }
+};
+
+export const formatHeaderStringWithUnderscore = (val) => {
+  return val
+    .replace(/_/g, " ") // Replace underscores with spaces
+    .replace(/^\w/, (c) => c.toUpperCase()); // Capitalize the first letter
 };

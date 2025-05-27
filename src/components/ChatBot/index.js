@@ -210,7 +210,7 @@ const ChatBot = ({
     if (!isLoading && !chatStreaming) {
       const newMessages = cloneDeep(messages);
       const lastMessage = newMessages[newMessages.length - 1];
-      if (lastMessage?.role === "SimplAi") {
+      if (lastMessage?.role === "SimplAi" && !!lastMessage?.trace) {
         handleViewMessageTrace(lastMessage?.trace);
       }
     }

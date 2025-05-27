@@ -209,7 +209,7 @@ const SimplaiChat = (props) => {
         <ToolLoadingContainer>
           <Spin />
         </ToolLoadingContainer>
-        {props?.APP_ID == "agent-676148cc6e71ef9e44b21bd0" && <ChatFooter />}
+        {props?.APP_ID == "agent-682eaf4d414acecb31b2b68d" && <ChatFooter />}
       </EbmedChatContainer>
     );
   }
@@ -223,7 +223,7 @@ const SimplaiChat = (props) => {
             The setup of the bot has not been properly carried out.
           </Text>
         </ToolLoadingContainer>
-        {props?.APP_ID == "agent-676148cc6e71ef9e44b21bd0" && <ChatFooter />}
+        {props?.APP_ID == "agent-682eaf4d414acecb31b2b68d" && <ChatFooter />}
         {/* agent-6777ec623b61154ba9b9a49b */}
       </EbmedChatContainer>
     );
@@ -270,7 +270,7 @@ const SimplaiChat = (props) => {
           submitMessageFeedback={submitMessageFeedback}
         />
       </ChatBotContainer>
-      {props?.APP_ID == "agent-676148cc6e71ef9e44b21bd0" && <ChatFooter />}
+      {/* {props?.APP_ID == "agent-682eaf4d414acecb31b2b68d" && <ChatFooter />} */}
     </EbmedChatContainer>
   );
 };

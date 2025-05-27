@@ -12,6 +12,10 @@ import { handleCopy } from "../../../utils/helperFunction";
 import MarkdownComponent from "../../Markdown";
 import ToolStepInputs from "../../ToolStepInputs";
 import ToolStepOutputs from "../../ToolStepOutputs";
+import TracingAgentInput from "../../TracingAgentInput";
+import TracingAgentOutput from "../../TracingAgentOutput";
+import TracingAgentRootInput from "../../TracingAgentRootInput";
+import TracingAgentRootOutput from "../../TracingAgentRootOutput";
 import { CustomSegmented } from "../../UIComponents/UIComponents.style";
 import {
   ActionButtonContainer,
@@ -38,8 +42,6 @@ const TracingDetailItem = ({
   steps,
   isError = false,
 }) => {
-  console.log("🚀 ~ allNodes:", allNodes);
-  console.log("🚀 ~ steps:", steps);
   console.log("🚀 ~ selectedNodeDetails:", selectedNodeDetails);
   console.log("🚀 ~ tracingDetail:", tracingDetail);
   const { data: toolDetails, isLoading: toolDetailsLoading } = useFetchData(
@@ -52,7 +54,6 @@ const TracingDetailItem = ({
         !!selectedNodeDetails?.entity_id,
     },
   );
-  console.log("🚀 ~ toolDetails:", toolDetails);
 
   const [showCopied, setShowCopied] = useState(false);
   const [selectedInputView, setSelectedInputView] = useState("Values");
@@ -154,7 +155,34 @@ const TracingDetailItem = ({
           />
         )}
 
-      {!(selectedNodeDetails?.entity_type === "TOOL_STEP") && (
+      {selectedNodeDetails?.entity_type === "AGENT" &&
+        selectedNodeDetails?.name === "llm_call" &&
+        tracingDetail?.title?.toUpperCase() === "INPUT" && (
+          <TracingAgentInput selectedNodeDetails={selectedNodeDetails} />
+        )}
+
+      {selectedNodeDetails?.entity_type === "AGENT" &&
+        selectedNodeDetails?.name === "llm_call" &&
+        tracingDetail?.title?.toUpperCase() === "OUTPUT" && (
+          <TracingAgentOutput selectedNodeDetails={selectedNodeDetails} />
+        )}
+
+      {selectedNodeDetails?.entity_type === "AGENT" &&
+        selectedNodeDetails?.name !== "llm_call" &&
+        tracingDetail?.title?.toUpperCase() === "INPUT" && (
+          <TracingAgentRootInput selectedNodeDetails={selectedNodeDetails} />
+        )}
+
+      {selectedNodeDetails?.entity_type === "AGENT" &&
+        selectedNodeDetails?.name !== "llm_call" &&
+        tracingDetail?.title?.toUpperCase() === "OUTPUT" && (
+          <TracingAgentRootOutput selectedNodeDetails={selectedNodeDetails} />
+        )}
+
+      {!(
+        (selectedNodeDetails?.entity_type === "TOOL_STEP" && !!stepConfig) ||
+        selectedNodeDetails?.entity_type === "AGENT"
+      ) && (
         <>
           {(isError &&
             typeof selectedNodeDetails?.data?.error_response === "object") ||
