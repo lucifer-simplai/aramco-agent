@@ -9,6 +9,7 @@ const { Text } = Typography;
 export const TracingDrawerContainer = styled(Splitter)`
   height: 100%;
   display: flex;
+  overflow: auto;
   .ant-tree .ant-tree-treenode {
     width: 100%;
     min-width: max-content;
@@ -65,7 +66,7 @@ export const TraceDivider = styled.div`
 `;
 
 export const TracingTreeContainer = styled.div`
-  height: 95%;
+  /* height: 95%; */
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -146,8 +147,8 @@ export const TracingDetailsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overflow: auto;
-  height: 94%;
+  /* overflow: auto;
+  height: 94%; */
 
   .ant-tabs-content-holder {
     overflow: auto !important;

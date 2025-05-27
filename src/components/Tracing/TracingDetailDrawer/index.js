@@ -434,8 +434,6 @@ const TracingDetailDrawer = ({
               <div
                 style={{
                   width: "100%",
-                  overflowX: "auto",
-                  overflowY: "auto",
                   // scrollBehavior: "smooth",
                   position: "relative",
                   flex: 1,
