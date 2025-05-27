@@ -1,4 +1,3 @@
-import { CheckOutlined, CopyOutlined } from "@ant-design/icons";
 import {
   Button,
   Col,
@@ -8,7 +7,6 @@ import {
   Skeleton,
   Space,
   Splitter,
-  Tabs,
   Tree,
   Typography,
 } from "antd";
@@ -18,7 +16,6 @@ import { useFetchData } from "../../../hooks/useApi";
 import config, { CHATBOT_BASE_URL } from "../../../utils/apiEndpoints";
 import { dateTimeFormatYMDWithMillisecondsWithoutTimeZone } from "../../../utils/constants";
 import dayjs from "../../../utils/date";
-import { handleCopy } from "../../../utils/helperFunction";
 import CollapseDetailIcon from "../../Icons/CollapseDetailIcon";
 import DownArrowIcon from "../../Icons/DownArrowIcon";
 import ExpandDetailIcon from "../../Icons/ExpandDetailIcon";
@@ -26,7 +23,6 @@ import ZoominIcon from "../../Icons/ZoomIcon";
 import ZoomInDisabledIcon from "../../Icons/ZoomInDisabledIcon";
 import ZoomOutDisabledIcon from "../../Icons/ZoomOutDisabledIcon";
 import ZoomOutIcon from "../../Icons/ZoomOutIcon";
-import { DrawerTabTitle } from "../../UIComponents/UIComponents.style";
 import Waterfall from "../../Waterfall";
 import TracingDetailItem from "../TracingDetailItem";
 import { WaterfallChartBarColor } from "./constant";
@@ -38,7 +34,6 @@ import {
   TracingTreeHeaderContainer,
   WaterFallViewContainer,
 } from "./style";
-import TraceDetails from "./TraceDetails";
 
 const { Text } = Typography;
 
@@ -250,9 +245,15 @@ const TracingDetailDrawer = ({
     return getTreeNode(tracingTreeDetails);
   }, [steps, allNodes, tracingTreeDetails]);
 
-  const waterfallData = getWaterfallData(tracingTreeDetails);
+  const waterfallData = useMemo(
+    () => getWaterfallData(tracingTreeDetails),
+    [tracingTreeDetails],
+  );
 
-  const selectedNodeDetails = getSelectedNodeDetails(tracingTreeDetails);
+  const selectedNodeDetails = useMemo(
+    () => getSelectedNodeDetails(tracingTreeDetails),
+    [tracingTreeDetails, selectedNode],
+  );
 
   // Flatten data according to expandedMap
   const flattened = useMemo(
@@ -276,7 +277,11 @@ const TracingDetailDrawer = ({
   };
 
   useEffect(() => {
-    if (open && waterfallData?.length && initialRender.current) {
+    initialRender.current = true;
+  }, [tracingTreeDetails]);
+
+  useEffect(() => {
+    if (open && waterfallData?.length) {
       const newMap = {};
       const fillMap = (items) => {
         items.forEach((item) => {
@@ -347,99 +352,7 @@ const TracingDetailDrawer = ({
     });
   }, [expandedMap]);
 
-  const items = useMemo(() => {
-    return [
-      {
-        key: "tracing",
-        destroyInactiveTabPane: false,
-        label: <DrawerTabTitle>Tracing</DrawerTabTitle>,
-        children: (
-          <Flex vertical gap={24} style={{ overflow: "auto", height: "100%" }}>
-            {!selectedNodeDetails ? (
-              <Row justify="center">
-                <Col>
-                  <Result title="No Details Available" />
-                </Col>
-              </Row>
-            ) : (
-              tracingDetailsMetadata?.map((tracingDetail) => {
-                if (
-                  tracingDetail?.key === "output" &&
-                  !!selectedNodeDetails?.data?.error_response
-                ) {
-                  return (
-                    <TracingDetailItem
-                      key={tracingDetail?.key}
-                      selectedNodeDetails={selectedNodeDetails}
-                      tracingDetail={tracingDetail}
-                      format={format}
-                      setFormat={setFormat}
-                      isError={true}
-                    />
-                  );
-                }
-                return (
-                  <TracingDetailItem
-                    key={tracingDetail?.key}
-                    selectedNodeDetails={selectedNodeDetails}
-                    tracingDetail={tracingDetail}
-                    format={format}
-                    setFormat={setFormat}
-                    allNodes={allNodes}
-                    steps={steps}
-                  />
-                );
-              })
-            )}
-          </Flex>
-        ),
-      },
-      {
-        key: "details",
-        destroyInactiveTabPane: false,
-        label: <DrawerTabTitle>Details</DrawerTabTitle>,
-        children: <TraceDetails selectedNodeDetails={selectedNodeDetails} />,
-      },
-    ];
-  }, [
-    selectedTab,
-    selectedNodeDetails,
-    tracingDetailsMetadata,
-    format,
-    setFormat,
-    allNodes,
-    steps,
-  ]);
-
-  const onChange = (key) => {
-    setSelectedTab(key);
-  };
-
   return (
-    // <Drawer
-    //   title={
-    //     <Skeleton loading={loading} title={false} paragraph={{ rows: 1 }}>
-    //       {title}
-    //     </Skeleton>
-    //   }
-    //   onClose={onClose}
-    //   open={open}
-    //   width="80%"
-    //   closable={true}
-    //   styles={{ body: { padding: 0 } }}
-    //   afterOpenChange={(open) => {
-    //     if (!open) {
-    //       setSelectedNode(undefined);
-    //       setTracingTreeDetails([]);
-    //       setFormat("json");
-    //       setIsWaterfallView(false);
-    //       setExpandedMap({});
-    //       initialRender.current = true;
-    //       setZoomFactor(1);
-    //       setSelectedTab("tracing");
-    //     }
-    //   }}
-    // >
     <TracingDrawerContainer
       onResizeEnd={() => {
         setSplitterResized((prev) => !prev);
@@ -563,42 +476,52 @@ const TracingDetailDrawer = ({
       <Splitter.Panel>
         <TracingDetailsContainer>
           <Skeleton loading={loading} title={false} paragraph={{ rows: 8 }}>
-            <Tabs
-              items={items}
-              onChange={onChange}
+            <Flex
+              vertical
+              gap={24}
               style={{ overflow: "auto", height: "100%" }}
-              color="#fff"
-              size="small"
-              tabBarExtraContent={
-                <Flex
-                  onClick={() => {
-                    handleCopy(selectedNodeDetails?.tree_id);
-                    setShowTraceIdCopied(true);
-                    setTimeout(() => {
-                      setShowTraceIdCopied(false);
-                    }, 700);
-                  }}
-                  gap={4}
-                  align="center"
-                  style={{ cursor: "pointer" }}
-                >
-                  {showTraceIdCopied ? (
-                    <>
-                      <CheckOutlined /> Copied
-                    </>
-                  ) : (
-                    <>
-                      <CopyOutlined /> Trace ID
-                    </>
-                  )}
-                </Flex>
-              }
-            />
+            >
+              {!selectedNodeDetails ? (
+                <Row justify="center">
+                  <Col>
+                    <Result title="No Details Available" />
+                  </Col>
+                </Row>
+              ) : (
+                tracingDetailsMetadata?.map((tracingDetail) => {
+                  if (
+                    tracingDetail?.key === "output" &&
+                    !!selectedNodeDetails?.data?.error_response
+                  ) {
+                    return (
+                      <TracingDetailItem
+                        key={tracingDetail?.key}
+                        selectedNodeDetails={selectedNodeDetails}
+                        tracingDetail={tracingDetail}
+                        format={format}
+                        setFormat={setFormat}
+                        isError={true}
+                      />
+                    );
+                  }
+                  return (
+                    <TracingDetailItem
+                      key={tracingDetail?.key}
+                      selectedNodeDetails={selectedNodeDetails}
+                      tracingDetail={tracingDetail}
+                      format={format}
+                      setFormat={setFormat}
+                      allNodes={allNodes}
+                      steps={steps}
+                    />
+                  );
+                })
+              )}
+            </Flex>
           </Skeleton>
         </TracingDetailsContainer>
       </Splitter.Panel>
     </TracingDrawerContainer>
-    // </Drawer>
   );
 };
 

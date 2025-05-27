@@ -1,15 +1,29 @@
-import { RobotOutlined, ToolFilled, UserOutlined } from "@ant-design/icons";
+import {
+  RobotOutlined,
+  ToolFilled,
+  ToolOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { langs } from "@uiw/codemirror-extensions-langs";
 import { xcodeDark } from "@uiw/codemirror-theme-xcode";
 import ReactCodeMirror from "@uiw/react-codemirror";
 import { Col, Flex, Result, Row, Tabs, Typography } from "antd";
 import { useMemo, useState } from "react";
 import {
+  checkValidStringifiedJSON,
   formatHeaderStringWithUnderscore,
   isValidJSONValue,
 } from "../../utils/helperFunction";
+import MarkdownComponent from "../Markdown";
 import { DrawerTabTitle } from "../UIComponents/UIComponents.style";
-import { MessageCard, MessageCardContent, MessageCardHeader } from "./style";
+import {
+  MessageCard,
+  MessageCardContent,
+  MessageCardHeader,
+  ToolCallCard,
+  ToolCallContent,
+  ToolCallHeader,
+} from "./style";
 
 const { Text, Paragraph } = Typography;
 
@@ -37,10 +51,12 @@ const TracingAgentInput = ({ selectedNodeDetails }) => {
               </Row>
             ) : (
               selectedNodeDetails?.data?.input?.messages?.map?.((message) => {
+                console.log("🚀 ~ items ~ message:", message);
                 if (
-                  message?.role == "user" ||
-                  message?.role == "system" ||
-                  message?.role == "assistant"
+                  (message?.role == "user" ||
+                    message?.role == "system" ||
+                    message?.role == "assistant") &&
+                  (message?.content || message?.tool_calls)
                 ) {
                   return (
                     <MessageCard
@@ -61,15 +77,52 @@ const TracingAgentInput = ({ selectedNodeDetails }) => {
                         </Text>
                       </MessageCardHeader>
                       <MessageCardContent>
-                        <Paragraph
-                          ellipsis={{
-                            rows: 3,
-                            expandable: true,
-                            symbol: "more",
-                          }}
-                        >
-                          {message?.content}
-                        </Paragraph>
+                        {message?.content ? (
+                          <Paragraph
+                            ellipsis={{
+                              rows: 3,
+                              expandable: true,
+                              symbol: "more",
+                            }}
+                          >
+                            {message?.content}
+                          </Paragraph>
+                        ) : message?.tool_calls ? (
+                          <Flex vertical gap={12} style={{ width: "100%" }}>
+                            <Text strong>Tool Calls</Text>
+                            {message?.tool_calls?.map((toolDetails) => {
+                              return (
+                                <ToolCallCard>
+                                  <ToolCallHeader>
+                                    <ToolOutlined />
+                                    <Text strong>
+                                      {toolDetails?.function?.name || ""}
+                                    </Text>
+                                  </ToolCallHeader>
+                                  <ToolCallContent>
+                                    <MarkdownComponent
+                                      markdown={
+                                        checkValidStringifiedJSON(
+                                          toolDetails?.function?.arguments,
+                                        )
+                                          ? `<pre>${JSON.stringify(
+                                              JSON.parse(
+                                                toolDetails?.function
+                                                  ?.arguments,
+                                              ),
+                                              null,
+                                              2,
+                                            )}</pre>`
+                                          : toolDetails?.function?.arguments ||
+                                            ""
+                                      }
+                                    />
+                                  </ToolCallContent>
+                                </ToolCallCard>
+                              );
+                            })}
+                          </Flex>
+                        ) : null}
                       </MessageCardContent>
                     </MessageCard>
                   );

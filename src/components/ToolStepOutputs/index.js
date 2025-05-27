@@ -1,4 +1,4 @@
-import { Tabs } from "antd";
+import { Col, Result, Row, Tabs } from "antd";
 import { memo, useMemo, useState } from "react";
 import MarkdownComponent from "../Markdown";
 import {
@@ -42,29 +42,38 @@ const ToolStepOutputs = ({ stepConfig, selectedNodeDetails }) => {
 
   return (
     <ToolStepOutputsContainer>
-      <>
-        <Tabs
-          style={{ width: "100%" }}
-          onChange={onChange}
-          activeKey={activeKey}
-          items={items}
-          size="small"
-          renderTabBar={renderTabBar}
-        />
-        <ToolStepOutputContainer>
-          <MarkdownComponent
-            markdown={
-              typeof selectedNodeDetails?.data?.output?.[activeKey] === "object"
-                ? `<pre>${JSON.stringify(
-                    selectedNodeDetails?.data?.output?.[activeKey],
-                    null,
-                    2,
-                  )}</pre>`
-                : `${selectedNodeDetails?.data?.output?.[activeKey] ?? ""}`
-            }
+      {items?.length > 0 ? (
+        <>
+          <Tabs
+            style={{ width: "100%" }}
+            onChange={onChange}
+            activeKey={activeKey}
+            items={items}
+            size="small"
+            renderTabBar={renderTabBar}
           />
-        </ToolStepOutputContainer>
-      </>
+          <ToolStepOutputContainer>
+            <MarkdownComponent
+              markdown={
+                typeof selectedNodeDetails?.data?.output?.[activeKey] ===
+                "object"
+                  ? `<pre>${JSON.stringify(
+                      selectedNodeDetails?.data?.output?.[activeKey],
+                      null,
+                      2,
+                    )}</pre>`
+                  : `${selectedNodeDetails?.data?.output?.[activeKey] ?? ""}`
+              }
+            />
+          </ToolStepOutputContainer>
+        </>
+      ) : (
+        <Row justify="center">
+          <Col>
+            <Result title="No Details Available" />
+          </Col>
+        </Row>
+      )}
     </ToolStepOutputsContainer>
   );
 };

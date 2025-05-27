@@ -1,11 +1,18 @@
-import { RobotOutlined, UserOutlined } from "@ant-design/icons";
+import { RobotOutlined, ToolOutlined, UserOutlined } from "@ant-design/icons";
 import { Col, Flex, Result, Row, Tabs, Typography } from "antd";
 import { useMemo, useState } from "react";
-import { formatHeaderStringWithUnderscore } from "../../utils/helperFunction";
+import {
+  checkValidStringifiedJSON,
+  formatHeaderStringWithUnderscore,
+} from "../../utils/helperFunction";
+import MarkdownComponent from "../Markdown";
 import {
   MessageCard,
   MessageCardContent,
   MessageCardHeader,
+  ToolCallCard,
+  ToolCallContent,
+  ToolCallHeader,
 } from "../TracingAgentInput/style";
 import { DrawerTabTitle } from "../UIComponents/UIComponents.style";
 
@@ -36,9 +43,10 @@ const TracingAgentRootOutput = ({ selectedNodeDetails }) => {
             ) : (
               selectedNodeDetails?.data?.output?.messages?.map?.((message) => {
                 if (
-                  message?.role == "user" ||
-                  message?.role == "system" ||
-                  message?.role == "assistant"
+                  (message?.role == "user" ||
+                    message?.role == "system" ||
+                    message?.role == "assistant") &&
+                  (message?.content || message?.tool_calls)
                 ) {
                   return (
                     <MessageCard
@@ -59,15 +67,52 @@ const TracingAgentRootOutput = ({ selectedNodeDetails }) => {
                         </Text>
                       </MessageCardHeader>
                       <MessageCardContent>
-                        <Paragraph
-                          ellipsis={{
-                            rows: 3,
-                            expandable: true,
-                            symbol: "more",
-                          }}
-                        >
-                          {message?.content}
-                        </Paragraph>
+                        {message?.content ? (
+                          <Paragraph
+                            ellipsis={{
+                              rows: 3,
+                              expandable: true,
+                              symbol: "more",
+                            }}
+                          >
+                            {message?.content}
+                          </Paragraph>
+                        ) : message?.tool_calls ? (
+                          <Flex vertical gap={12} style={{ width: "100%" }}>
+                            <Text strong>Tool Calls</Text>
+                            {message?.tool_calls?.map((toolDetails) => {
+                              return (
+                                <ToolCallCard>
+                                  <ToolCallHeader>
+                                    <ToolOutlined />
+                                    <Text strong>
+                                      {toolDetails?.function?.name || ""}
+                                    </Text>
+                                  </ToolCallHeader>
+                                  <ToolCallContent>
+                                    <MarkdownComponent
+                                      markdown={
+                                        checkValidStringifiedJSON(
+                                          toolDetails?.function?.arguments,
+                                        )
+                                          ? `<pre>${JSON.stringify(
+                                              JSON.parse(
+                                                toolDetails?.function
+                                                  ?.arguments,
+                                              ),
+                                              null,
+                                              2,
+                                            )}</pre>`
+                                          : toolDetails?.function?.arguments ||
+                                            ""
+                                      }
+                                    />
+                                  </ToolCallContent>
+                                </ToolCallCard>
+                              );
+                            })}
+                          </Flex>
+                        ) : null}
                       </MessageCardContent>
                     </MessageCard>
                   );

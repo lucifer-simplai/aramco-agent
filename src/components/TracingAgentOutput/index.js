@@ -1,15 +1,27 @@
+import { ToolOutlined } from "@ant-design/icons";
 import { langs } from "@uiw/codemirror-extensions-langs";
 import { xcodeDark } from "@uiw/codemirror-theme-xcode";
 import ReactCodeMirror from "@uiw/react-codemirror";
 import { Col, Flex, Result, Row, Tabs, Typography } from "antd";
 import { useMemo, useState } from "react";
 import { checkValidStringifiedJSON } from "../../utils/helperFunction";
-import { MessageCard, MessageCardContent } from "../TracingAgentInput/style";
+import MarkdownComponent from "../Markdown";
+import {
+  MessageCard,
+  MessageCardContent,
+  ToolCallCard,
+  ToolCallContent,
+  ToolCallHeader,
+} from "../TracingAgentInput/style";
 import { DrawerTabTitle } from "../UIComponents/UIComponents.style";
 
 const { Text, Paragraph } = Typography;
 
 const TracingAgentOutput = ({ selectedNodeDetails }) => {
+  console.log(
+    "🚀 ~ TracingAgentOutput ~ selectedNodeDetails:",
+    selectedNodeDetails,
+  );
   const [selectedTab, setSelectedTab] = useState("content");
 
   const onChange = (key) => {
@@ -63,28 +75,78 @@ const TracingAgentOutput = ({ selectedNodeDetails }) => {
                 </Col>
               </Row>
             ) : (
-              <MessageCard isblank={true}>
-                <MessageCardContent>
-                  <ReactCodeMirror
-                    theme={xcodeDark}
-                    value={
-                      checkValidStringifiedJSON(
+              <Flex vertical gap={12} style={{ width: "100%" }}>
+                {checkValidStringifiedJSON(
+                  selectedNodeDetails?.data?.output?.tool_calls,
+                ) ? (
+                  JSON.parse(selectedNodeDetails?.data?.output?.tool_calls)
+                    ?.length > 0 ? (
+                    <>
+                      <Text strong>Tool Calls</Text>
+                      {JSON.parse(
                         selectedNodeDetails?.data?.output?.tool_calls,
-                      )
-                        ? selectedNodeDetails?.data?.output?.tool_calls
-                        : ""
-                    }
-                    height="150px"
-                    extensions={[langs.json()]}
-                    contentEditable={false}
-                    style={{
-                      borderRadius: "15px",
-                      overflow: "hidden",
-                      width: "100%",
-                    }}
-                  />
-                </MessageCardContent>
-              </MessageCard>
+                      )?.map((toolDetails) => {
+                        return (
+                          <ToolCallCard>
+                            <ToolCallHeader>
+                              <ToolOutlined />
+                              <Text strong>
+                                {toolDetails?.function?.name || ""}
+                              </Text>
+                            </ToolCallHeader>
+                            <ToolCallContent>
+                              <MarkdownComponent
+                                markdown={
+                                  checkValidStringifiedJSON(
+                                    toolDetails?.function?.arguments,
+                                  )
+                                    ? `<pre>${JSON.stringify(
+                                        JSON.parse(
+                                          toolDetails?.function?.arguments,
+                                        ),
+                                        null,
+                                        2,
+                                      )}</pre>`
+                                    : toolDetails?.function?.arguments || ""
+                                }
+                              />
+                            </ToolCallContent>
+                          </ToolCallCard>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <Row justify="center">
+                      <Col>
+                        <Result title="No Details Available" />
+                      </Col>
+                    </Row>
+                  )
+                ) : (
+                  <MessageCard isblank={true}>
+                    <MessageCardContent>
+                      <ReactCodeMirror
+                        theme={xcodeDark}
+                        value={
+                          checkValidStringifiedJSON(
+                            selectedNodeDetails?.data?.output?.tool_calls,
+                          )
+                            ? selectedNodeDetails?.data?.output?.tool_calls
+                            : ""
+                        }
+                        height="150px"
+                        extensions={[langs.json()]}
+                        contentEditable={false}
+                        style={{
+                          borderRadius: "15px",
+                          overflow: "hidden",
+                          width: "100%",
+                        }}
+                      />
+                    </MessageCardContent>
+                  </MessageCard>
+                )}
+              </Flex>
             )}
           </Flex>
         ),

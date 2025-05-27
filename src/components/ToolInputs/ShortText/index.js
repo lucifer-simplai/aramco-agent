@@ -19,6 +19,7 @@ const ShortText = ({
   index,
   disabled = false,
 }) => {
+  console.log("🚀 ~ inputDetails:", inputDetails);
   const ShortTextRef = useRef();
 
   const addVariableToText = useCallback(

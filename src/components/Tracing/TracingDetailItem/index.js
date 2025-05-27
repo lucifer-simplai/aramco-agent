@@ -10,6 +10,7 @@ import { useFetchData } from "../../../hooks/useApi";
 import config from "../../../utils/apiEndpoints";
 import { handleCopy } from "../../../utils/helperFunction";
 import MarkdownComponent from "../../Markdown";
+import ToolAsStepInputs from "../../ToolAsStepInputs";
 import ToolStepInputs from "../../ToolStepInputs";
 import ToolStepOutputs from "../../ToolStepOutputs";
 import TracingAgentInput from "../../TracingAgentInput";
@@ -54,6 +55,7 @@ const TracingDetailItem = ({
         !!selectedNodeDetails?.entity_id,
     },
   );
+  console.log("🚀 ~ toolDetails:", toolDetails);
 
   const [showCopied, setShowCopied] = useState(false);
   const [selectedInputView, setSelectedInputView] = useState("Values");
@@ -71,7 +73,6 @@ const TracingDetailItem = ({
     }
     return undefined;
   }, [selectedNodeDetails, allNodes, steps]);
-  console.log("🚀 ~ stepConfig ~ stepConfig:", stepConfig);
 
   const getCodeMirrorValue = useMemo(() => {
     const data = isError
@@ -147,6 +148,26 @@ const TracingDetailItem = ({
           />
         )}
 
+      {selectedNodeDetails?.entity_type === "TOOLS" &&
+        tracingDetail?.title?.toUpperCase() === "INPUT" &&
+        !!selectedNodeDetails?.entity_id &&
+        !!toolDetails && (
+          <ToolAsStepInputs
+            toolDetails={toolDetails}
+            selectedNodeDetails={selectedNodeDetails}
+          />
+        )}
+
+      {selectedNodeDetails?.entity_type === "TOOLS" &&
+        tracingDetail?.title?.toUpperCase() === "OUTPUT" &&
+        !!selectedNodeDetails?.entity_id &&
+        !!toolDetails && (
+          <ToolStepOutputs
+            stepConfig={toolDetails}
+            selectedNodeDetails={selectedNodeDetails}
+          />
+        )}
+
       {selectedNodeDetails?.entity_type === "TOOL_STEP" &&
         tracingDetail?.title?.toUpperCase() === "OUTPUT" && (
           <ToolStepOutputs
@@ -181,7 +202,8 @@ const TracingDetailItem = ({
 
       {!(
         (selectedNodeDetails?.entity_type === "TOOL_STEP" && !!stepConfig) ||
-        selectedNodeDetails?.entity_type === "AGENT"
+        selectedNodeDetails?.entity_type === "AGENT" ||
+        (selectedNodeDetails?.entity_type === "TOOLS" && !!toolDetails)
       ) && (
         <>
           {(isError &&
